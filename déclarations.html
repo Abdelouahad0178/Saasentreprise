@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Module de Déclarations</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .btn-outline-morocco {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline-morocco:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    
+    .table-declarations th, .table-declarations td {
+      padding: 0.75rem;
+      vertical-align: middle;
+    }
+    
+    .declaration-card {
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50rem;
+    }
+    
+    .status-submitted { background-color: #d1e7dd; }
+    .status-pending { background-color: #f8d7da; }
+    .status-draft { background-color: #fff3cd; }
+    
+    #declarationSearch {
+      position: relative;
+    }
+    
+    #declarationSearchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ced4da;
+      border-radius: 0 0 0.25rem 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .declaration-search-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .declaration-search-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="ms-2">MaghrebERP</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-globe"></i> Français
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="badge bg-danger rounded-pill">3</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">Déclaration TVA en attente</a></li>
+              <li><a class="dropdown-item" href="#">CNSS soumise avec succès</a></li>
+              <li><a class="dropdown-item" href="#">Rappel : IS à déclarer</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Samira Tahiri
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profil</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="facturation.html">
+              <i class="fas fa-file-invoice-dollar"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="comptabilite.html">
+              <i class="fas fa-calculator"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="fas fa-boxes"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="client.html">
+              <i class="fas fa-users"></i> Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="fournisseur.html">
+              <i class="fas fa-building"></i> Fournisseurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="ressources_humaines.html">
+              <i class="fas fa-user-tie"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapports.html">
+              <i class="fas fa-chart-bar"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="fas fa-cog"></i> Paramètres
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="declarations.html">
+              <i class="fas fa-file-alt"></i> Déclarations
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container py-4">
+          <!-- Liste des déclarations (par défaut) -->
+          <div id="declarationsList">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Déclarations</h2>
+              <div>
+                <button class="btn btn-morocco" id="addDeclarationBtn">
+                  <i class="fas fa-plus"></i> Nouvelle déclaration
+                </button>
+              </div>
+            </div>
+            
+            <!-- Filtres -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label for="typeFilter" class="form-label">Type</label>
+                    <select class="form-select" id="typeFilter">
+                      <option value="">Tous</option>
+                      <option value="tva">TVA</option>
+                      <option value="is">IS</option>
+                      <option value="ir">IR</option>
+                      <option value="cnss">CNSS</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Statut</label>
+                    <select class="form-select" id="statusFilter">
+                      <option value="">Tous</option>
+                      <option value="draft">Brouillon</option>
+                      <option value="pending">En attente</option>
+                      <option value="submitted">Soumise</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="searchFilter" class="form-label">Recherche</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchFilter" placeholder="Période, Type...">
+                      <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Liste des déclarations -->
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover table-declarations">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Période</th>
+                        <th>Montant (MAD)</th>
+                        <th>Statut</th>
+                        <th>Date de soumission</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="declarationsTableBody">
+                      <!-- Les déclarations seront insérées ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="d-flex justify-content-between align-items-center mt-4">
+                  <div>
+                    <span>Affichage de 1 à 10 sur 30 déclarations</span>
+                  </div>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ajout/Modification d'une déclaration (caché par défaut) -->
+          <div id="declarationEdit" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="declarationEditTitle">Nouvelle déclaration</h2>
+              <div>
+                <button class="btn btn-outline-secondary me-2" id="cancelDeclarationBtn">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+                <button class="btn btn-morocco" id="saveDeclarationBtn">
+                  <i class="fas fa-save"></i> Enregistrer
+                </button>
+                <button class="btn btn-morocco ms-2" id="submitDeclarationBtn" style="display: none;">
+                  <i class="fas fa-paper-plane"></i> Soumettre
+                </button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <form id="declarationForm">
+                  <input type="hidden" id="declarationId">
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="declarationType" class="form-label">Type de déclaration</label>
+                        <select class="form-select" id="declarationType" required>
+                          <option value="tva">TVA</option>
+                          <option value="is">IS</option>
+                          <option value="ir">IR</option>
+                          <option value="cnss">CNSS</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="declarationPeriod" class="form-label">Période</label>
+                        <input type="month" class="form-control" id="declarationPeriod" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="declarationStatus" class="form-label">Statut</label>
+                        <select class="form-select" id="declarationStatus">
+                          <option value="draft">Brouillon</option>
+                          <option value="pending">En attente</option>
+                          <option value="submitted">Soumise</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="totalAmount" class="form-label">Montant total (MAD)</label>
+                        <input type="number" class="form-control" id="totalAmount" step="0.01" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="dueDate" class="form-label">Date d'échéance</label>
+                        <input type="date" class="form-control" id="dueDate" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Détails spécifiques selon le type de déclaration -->
+                  <div id="tvaDetails" class="declaration-details" style="display: none;">
+                    <h5 class="mb-3">Détails TVA</h5>
+                    <div class="row mb-4">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="tvaCollectee" class="form-label">TVA collectée (MAD)</label>
+                          <input type="number" class="form-control" id="tvaCollectee" step="0.01">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="tvaDeductible" class="form-label">TVA déductible (MAD)</label>
+                          <input type="number" class="form-control" id="tvaDeductible" step="0.01">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div id="isDetails" class="declaration-details" style="display: none;">
+                    <h5 class="mb-3">Détails IS</h5>
+                    <div class="row mb-4">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="resultatFiscal" class="form-label">Résultat fiscal (MAD)</label>
+                          <input type="number" class="form-control" id="resultatFiscal" step="0.01">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="isRate" class="form-label">Taux IS (%)</label>
+                          <input type="number" class="form-control" id="isRate" step="0.01">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div id="irDetails" class="declaration-details" style="display: none;">
+                    <h5 class="mb-3">Détails IR</h5>
+                    <div class="row mb-4">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="salariesCount" class="form-label">Nombre de salariés</label>
+                          <input type="number" class="form-control" id="salariesCount">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="totalSalaries" class="form-label">Masse salariale (MAD)</label>
+                          <input type="number" class="form-control" id="totalSalaries" step="0.01">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div id="cnssDetails" class="declaration-details" style="display: none;">
+                    <h5 class="mb-3">Détails CNSS</h5>
+                    <div class="row mb-4">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="cnssEmployees" class="form-label">Nombre d'employés déclarés</label>
+                          <input type="number" class="form-control" id="cnssEmployees">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="cnssContributions" class="form-label">Cotisations totales (MAD)</label>
+                          <input type="number" class="form-control" id="cnssContributions" step="0.01">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="declarationNotes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="declarationNotes" rows="3" placeholder="Notes ou commentaires sur la déclaration..."></textarea>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Détails d'une déclaration (caché par défaut) -->
+          <div id="declarationDetails" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="editDeclarationBtn">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printDeclarationBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+              <button class="btn btn-morocco" id="submitDeclarationBtnDetails">
+                <i class="fas fa-paper-plane"></i> Soumettre
+              </button>
+            </div>
+            
+            <div class="card declaration-card">
+              <div class="card-body">
+                <div class="row align-items-center mb-4">
+                  <div class="col-md-8">
+                    <h3 id="detailsDeclarationType" class="mb-1"></h3>
+                    <div class="text-muted">
+                      Période: <span id="detailsPeriod"></span> | Montant: <span id="detailsAmount"></span> MAD
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div id="detailsStatusBadge" class="d-inline-block"></div>
+                  </div>
+                </div>
+                
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <div>Date d'échéance: <span id="detailsDueDate"></span></div>
+                    <div>Date de soumission: <span id="detailsSubmissionDate"></span></div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Détails spécifiques</h6>
+                    <div id="detailsSpecifics"></div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-12">
+                    <h6 class="fw-bold mb-2">Notes</h6>
+                    <p id="detailsNotes" class="text-muted"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>© 2025 MaghrebERP. Tous droits réservés.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>Support technique: support@maghreberp.ma | +212 522 123 456</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

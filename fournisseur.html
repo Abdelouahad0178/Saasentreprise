@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Module de Gestion des Fournisseurs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .btn-outline-morocco {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline-morocco:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    
+    .table-suppliers th, .table-suppliers td {
+      padding: 0.75rem;
+      vertical-align: middle;
+    }
+    
+    .supplier-card {
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50rem;
+    }
+    
+    .status-active { background-color: #d1e7dd; }
+    .status-inactive { background-color: #f8d7da; }
+    
+    #supplierSearch {
+      position: relative;
+    }
+    
+    #supplierSearchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ced4da;
+      border-radius: 0 0 0.25rem 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .supplier-search-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .supplier-search-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="ms-2">MaghrebERP</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-globe"></i> Français
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="badge bg-danger rounded-pill">2</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">Nouveau fournisseur ajouté</a></li>
+              <li><a class="dropdown-item" href="#">Paiement fournisseur en retard</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Samira Tahiri
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profil</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="facturation.html">
+              <i class="fas fa-file-invoice-dollar"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="comptabilité.html">
+              <i class="fas fa-calculator"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="fas fa-boxes"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="client.html">
+              <i class="fas fa-users"></i> Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="fournisseur.html">
+              <i class="fas fa-building"></i> Fournisseurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="ressourceshumaines.html">
+              <i class="fas fa-user-tie"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapport.html">
+              <i class="fas fa-chart-bar"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="fas fa-cog"></i> Paramètres
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container py-4">
+          <!-- Liste des fournisseurs (par défaut) -->
+          <div id="suppliersList">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Fournisseurs</h2>
+              <div>
+                <button class="btn btn-morocco" id="createSupplierBtn">
+                  <i class="fas fa-plus"></i> Nouveau fournisseur
+                </button>
+              </div>
+            </div>
+            
+            <!-- Filtres -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Statut</label>
+                    <select class="form-select" id="statusFilter">
+                      <option value="">Tous</option>
+                      <option value="active">Actif</option>
+                      <option value="inactive">Inactif</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="categoryFilter" class="form-label">Catégorie</label>
+                    <select class="form-select" id="categoryFilter">
+                      <option value="">Toutes</option>
+                      <option value="materiel">Matériel</option>
+                      <option value="services">Services</option>
+                      <option value="produits">Produits</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="searchFilter" class="form-label">Recherche</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchFilter" placeholder="Nom, ICE...">
+                      <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Liste des fournisseurs -->
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover table-suppliers">
+                    <thead>
+                      <tr>
+                        <th>Nom</th>
+                        <th>ICE</th>
+                        <th>Contact</th>
+                        <th>Catégorie</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="suppliersTableBody">
+                      <!-- Les fournisseurs seront insérés ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="d-flex justify-content-between align-items-center mt-4">
+                  <div>
+                    <span>Affichage de 1 à 10 sur 25 fournisseurs</span>
+                  </div>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Création/Modification d'un fournisseur (caché par défaut) -->
+          <div id="supplierEdit" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="supplierEditTitle">Nouveau fournisseur</h2>
+              <div>
+                <button class="btn btn-outline-secondary me-2" id="cancelSupplierBtn">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+                <button class="btn btn-morocco" id="saveSupplierBtn">
+                  <i class="fas fa-save"></i> Enregistrer
+                </button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <form id="supplierForm">
+                  <input type="hidden" id="supplierId">
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="supplierName" class="form-label">Nom de l'entreprise</label>
+                        <input type="text" class="form-control" id="supplierName" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="supplierICE" class="form-label">ICE</label>
+                        <input type="text" class="form-control" id="supplierICE" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="supplierCategory" class="form-label">Catégorie</label>
+                        <select class="form-select" id="supplierCategory">
+                          <option value="materiel">Matériel</option>
+                          <option value="services">Services</option>
+                          <option value="produits">Produits</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="supplierStatus" class="form-label">Statut</label>
+                        <select class="form-select" id="supplierStatus">
+                          <option value="active">Actif</option>
+                          <option value="inactive">Inactif</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="contactName" class="form-label">Nom du contact</label>
+                        <input type="text" class="form-control" id="contactName">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="contactPhone" class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" id="contactPhone">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="contactEmail">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="website" class="form-label">Site web</label>
+                        <input type="url" class="form-control" id="website">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="address" class="form-label">Adresse</label>
+                    <textarea class="form-control" id="address" rows="3"></textarea>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Informations supplémentaires sur le fournisseur..."></textarea>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Détails d'un fournisseur (caché par défaut) -->
+          <div id="supplierDetails" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="editSupplierBtn">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printSupplierBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+            </div>
+            
+            <div class="card supplier-card">
+              <div class="card-body">
+                <div class="row align-items-center mb-4">
+                  <div class="col-md-8">
+                    <h3 id="detailsSupplierName" class="mb-1"></h3>
+                    <div class="text-muted">
+                      ICE: <span id="detailsSupplierICE"></span> | Catégorie: <span id="detailsCategory"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div id="detailsStatusBadge" class="d-inline-block"></div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Coordonnées</h6>
+                    <div>Contact: <span id="detailsContactName"></span></div>
+                    <div>Téléphone: <span id="detailsContactPhone"></span></div>
+                    <div>Email: <span id="detailsContactEmail"></span></div>
+                    <div>Site web: <span id="detailsWebsite"></span></div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Adresse</h6>
+                    <div id="detailsAddress"></div>
+                  </div>
+                </div>
+                
+                <div class="row mt-4">
+                  <div class="col-12">
+                    <h6 class="fw-bold mb-2">Notes</h6>
+                    <p id="detailsNotes" class="text-muted"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Historique des transactions -->
+            <div class="card">
+              <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">Historique des transactions</h5>
+                  <a href="#" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Référence</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                      <!-- Les transactions seront insérées ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>© 2025 MaghrebERP. Tous droits réservés.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>Support technique: support@maghreberp.ma | +212 522 123 456</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

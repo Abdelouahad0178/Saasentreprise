@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Module de Ressources Humaines</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .btn-outline-morocco {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline-morocco:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    
+    .table-employees th, .table-employees td {
+      padding: 0.75rem;
+      vertical-align: middle;
+    }
+    
+    .employee-card {
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50rem;
+    }
+    
+    .status-active { background-color: #d1e7dd; }
+    .status-inactive { background-color: #f8d7da; }
+    
+    #employeeSearch {
+      position: relative;
+    }
+    
+    #employeeSearchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ced4da;
+      border-radius: 0 0 0.25rem 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .employee-search-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .employee-search-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="ms-2">MaghrebERP</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-globe"></i> Français
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="badge bg-danger rounded-pill">3</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">Nouvel employé ajouté</a></li>
+              <li><a class="dropdown-item" href="#">Demande de congé en attente</a></li>
+              <li><a class="dropdown-item" href="#">Bulletin de paie généré</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Samira Tahiri
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profil</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="facturation.html">
+              <i class="fas fa-file-invoice-dollar"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="comptabilité.html">
+              <i class="fas fa-calculator"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="fas fa-boxes"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="client.html">
+              <i class="fas fa-users"></i> Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="fournisseur.html">
+              <i class="fas fa-building"></i> Fournisseurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="ressourceshumaines.html">
+              <i class="fas fa-user-tie"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapport.html">
+              <i class="fas fa-chart-bar"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="fas fa-cog"></i> Paramètres
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container py-4">
+          <!-- Liste des employés (par défaut) -->
+          <div id="employeesList">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Ressources Humaines</h2>
+              <div>
+                <button class="btn btn-morocco" id="addEmployeeBtn">
+                  <i class="fas fa-plus"></i> Nouvel employé
+                </button>
+              </div>
+            </div>
+            
+            <!-- Filtres -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Statut</label>
+                    <select class="form-select" id="statusFilter">
+                      <option value="">Tous</option>
+                      <option value="active">Actif</option>
+                      <option value="inactive">Inactif</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="departmentFilter" class="form-label">Département</label>
+                    <select class="form-select" id="departmentFilter">
+                      <option value="">Tous</option>
+                      <option value="comptabilite">Comptabilité</option>
+                      <option value="commercial">Commercial</option>
+                      <option value="logistique">Logistique</option>
+                      <option value="informatique">Informatique</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="searchFilter" class="form-label">Recherche</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchFilter" placeholder="Nom, CIN...">
+                      <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Liste des employés -->
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover table-employees">
+                    <thead>
+                      <tr>
+                        <th>Nom</th>
+                        <th>CIN</th>
+                        <th>Poste</th>
+                        <th>Département</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="employeesTableBody">
+                      <!-- Les employés seront insérés ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="d-flex justify-content-between align-items-center mt-4">
+                  <div>
+                    <span>Affichage de 1 à 10 sur 30 employés</span>
+                  </div>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ajout/Modification d'un employé (caché par défaut) -->
+          <div id="employeeEdit" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="employeeEditTitle">Nouvel employé</h2>
+              <div>
+                <button class="btn btn-outline-secondary me-2" id="cancelEmployeeBtn">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+                <button class="btn btn-morocco" id="saveEmployeeBtn">
+                  <i class="fas fa-save"></i> Enregistrer
+                </button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <form id="employeeForm">
+                  <input type="hidden" id="employeeId">
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeeName" class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" id="employeeName" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeeCIN" class="form-label">CIN</label>
+                        <input type="text" class="form-control" id="employeeCIN" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeePosition" class="form-label">Poste</label>
+                        <input type="text" class="form-control" id="employeePosition" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeeDepartment" class="form-label">Département</label>
+                        <select class="form-select" id="employeeDepartment">
+                          <option value="comptabilite">Comptabilité</option>
+                          <option value="commercial">Commercial</option>
+                          <option value="logistique">Logistique</option>
+                          <option value="informatique">Informatique</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeeStatus" class="form-label">Statut</label>
+                        <select class="form-select" id="employeeStatus">
+                          <option value="active">Actif</option>
+                          <option value="inactive">Inactif</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="hireDate" class="form-label">Date d'embauche</label>
+                        <input type="date" class="form-control" id="hireDate" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeePhone" class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" id="employeePhone">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="employeeEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="employeeEmail">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="salary" class="form-label">Salaire de base (MAD)</label>
+                        <input type="number" class="form-control" id="salary" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="cnssNumber" class="form-label">Numéro CNSS</label>
+                        <input type="text" class="form-control" id="cnssNumber">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="address" class="form-label">Adresse</label>
+                    <textarea class="form-control" id="address" rows="3"></textarea>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Informations supplémentaires sur l'employé..."></textarea>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Détails d'un employé (caché par défaut) -->
+          <div id="employeeDetails" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="editEmployeeBtn">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printEmployeeBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+              <button class="btn btn-morocco" id="generatePaySlipBtn">
+                <i class="fas fa-file-invoice"></i> Générer bulletin
+              </button>
+            </div>
+            
+            <div class="card employee-card">
+              <div class="card-body">
+                <div class="row align-items-center mb-4">
+                  <div class="col-md-8">
+                    <h3 id="detailsEmployeeName" class="mb-1"></h3>
+                    <div class="text-muted">
+                      CIN: <span id="detailsEmployeeCIN"></span> | Poste: <span id="detailsPosition"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div id="detailsStatusBadge" class="d-inline-block"></div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Coordonnées</h6>
+                    <div>Téléphone: <span id="detailsEmployeePhone"></span></div>
+                    <div>Email: <span id="detailsEmployeeEmail"></span></div>
+                    <div>Adresse: <span id="detailsAddress"></span></div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Informations professionnelles</h6>
+                    <div>Département: <span id="detailsDepartment"></span></div>
+                    <div>Date d'embauche: <span id="detailsHireDate"></span></div>
+                    <div>Salaire: <span id="detailsSalary"></span></div>
+                    <div>Numéro CNSS: <span id="detailsCnssNumber"></span></div>
+                  </div>
+                </div>
+                
+                <div class="row mt-4">
+                  <div class="col-12">
+                    <h6 class="fw-bold mb-2">Notes</h6>
+                    <p id="detailsNotes" class="text-muted"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Historique des congés -->
+            <div class="card">
+              <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">Historique des congés</h5>
+                  <button class="btn btn-sm btn-outline-morocco" id="addLeaveRequestBtn">
+                    <i class="fas fa-plus"></i> Nouvelle demande
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Type</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody id="leaveTableBody">
+                      <!-- Les congés seront insérés ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>© 2025 MaghrebERP. Tous droits réservés.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>Support technique: support@maghreberp.ma | +212 522 123 456</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

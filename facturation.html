@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Module de Facturation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .btn-outline-morocco {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline-morocco:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    
+    .invoice-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+    
+    .table-invoices th, .table-invoices td {
+      padding: 0.75rem;
+      vertical-align: middle;
+    }
+    
+    .line-item-row:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .invoice-preview {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      background-color: white;
+    }
+    
+    .logo-placeholder {
+      width: 160px;
+      height: 60px;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed #ced4da;
+    }
+    
+    #clientSearch {
+      position: relative;
+    }
+    
+    #clientSearchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ced4da;
+      border-radius: 0 0 0.25rem 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .client-search-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .client-search-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50rem;
+    }
+    
+    .status-draft { background-color: #e2e3e5; }
+    .status-sent { background-color: #cfe2ff; }
+    .status-paid { background-color: #d1e7dd; }
+    .status-overdue { background-color: #f8d7da; }
+    .status-cancelled { background-color: #f8f9fa; }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="ms-2">MaghrebERP</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-globe"></i> Français
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="badge bg-danger rounded-pill">3</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">Facture FAC-2025-0042 en retard</a></li>
+              <li><a class="dropdown-item" href="#">Déclaration TVA à soumettre</a></li>
+              <li><a class="dropdown-item" href="#">Paiement reçu: 12 500 MAD</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Samira Tahiri
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profil</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="facturation.html">
+              <i class="fas fa-file-invoice-dollar"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="comptabilité.html">
+              <i class="fas fa-calculator"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="fas fa-boxes"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="client.html">
+              <i class="fas fa-users"></i> Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="fournisseur.html">
+              <i class="fas fa-building"></i> Fournisseurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="ressourceshumaines.html">
+              <i class="fas fa-user-tie"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapport.html">
+              <i class="fas fa-chart-bar"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="fas fa-cog"></i> Paramètres
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container py-4">
+          <!-- Facturation - Liste des factures (par défaut) -->
+          <div id="invoicesList">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Facturation</h2>
+              <div>
+                <button class="btn btn-morocco" id="createInvoiceBtn">
+                  <i class="fas fa-plus"></i> Nouvelle facture
+                </button>
+              </div>
+            </div>
+            
+            <!-- Filtres -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Statut</label>
+                    <select class="form-select" id="statusFilter">
+                      <option value="">Tous</option>
+                      <option value="draft">Brouillon</option>
+                      <option value="sent">Envoyée</option>
+                      <option value="paid">Payée</option>
+                      <option value="overdue">En retard</option>
+                      <option value="cancelled">Annulée</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="dateFilter" class="form-label">Période</label>
+                    <select class="form-select" id="dateFilter">
+                      <option value="all">Toutes les périodes</option>
+                      <option value="this-month">Ce mois</option>
+                      <option value="last-month">Mois dernier</option>
+                      <option value="this-quarter">Ce trimestre</option>
+                      <option value="this-year">Cette année</option>
+                      <option value="custom">Personnalisée</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="clientFilter" class="form-label">Client</label>
+                    <input type="text" class="form-control" id="clientFilter" placeholder="Rechercher un client">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="searchFilter" class="form-label">Recherche</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchFilter" placeholder="N° Facture, montant...">
+                      <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Liste des factures -->
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover table-invoices">
+                    <thead>
+                      <tr>
+                        <th>N° Facture</th>
+                        <th>Client</th>
+                        <th>Date d'émission</th>
+                        <th>Échéance</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="invoicesTableBody">
+                      <!-- Les factures seront insérées ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="d-flex justify-content-between align-items-center mt-4">
+                  <div>
+                    <span>Affichage de 1 à 10 sur 42 factures</span>
+                  </div>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">4</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Création/Modification de facture (caché par défaut) -->
+          <div id="invoiceEdit" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="invoiceEditTitle">Nouvelle facture</h2>
+              <div>
+                <button class="btn btn-outline-secondary me-2" id="cancelInvoiceBtn">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+                <button class="btn btn-outline-morocco me-2" id="saveAsDraftBtn">
+                  <i class="fas fa-save"></i> Enregistrer brouillon
+                </button>
+                <button class="btn btn-morocco" id="saveAndSendBtn">
+                  <i class="fas fa-paper-plane"></i> Enregistrer et envoyer
+                </button>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-8">
+                <!-- Formulaire de facture -->
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <form id="invoiceForm">
+                      <input type="hidden" id="invoiceId">
+                      
+                      <!-- Informations générales -->
+                      <div class="row mb-4">
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="invoiceNumber" class="form-label">N° Facture</label>
+                            <input type="text" class="form-control" id="invoiceNumber" readonly>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="invoiceDate" class="form-label">Date d'émission</label>
+                            <input type="date" class="form-control" id="invoiceDate" required>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="dueDate" class="form-label">Date d'échéance</label>
+                            <input type="date" class="form-control" id="dueDate" required>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Client -->
+                      <div class="mb-4">
+                        <label class="form-label">Client</label>
+                        <div class="card">
+                          <div class="card-body">
+                            <div id="selectedClient" style="display: none;">
+                              <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                  <h5 id="clientName" class="mb-1"></h5>
+                                  <div id="clientDetails" class="small text-muted"></div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="changeClientBtn">
+                                  Changer
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div id="clientSearch">
+                              <input type="hidden" id="clientId">
+                              <input type="text" class="form-control" id="clientSearchInput" placeholder="Rechercher un client...">
+                              <div id="clientSearchResults" style="display: none;"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Articles -->
+                      <div class="mb-4">
+                        <label class="form-label">Articles</label>
+                        <div class="table-responsive">
+                          <table class="table" id="lineItemsTable">
+                            <thead>
+                              <tr>
+                                <th style="width: 40%;">Description</th>
+                                <th style="width: 15%;">Quantité</th>
+                                <th style="width: 20%;">Prix unitaire (MAD)</th>
+                                <th style="width: 15%;">TVA (%)</th>
+                                <th style="width: 20%;">Total (MAD)</th>
+                                <th style="width: 5%;"></th>
+                              </tr>
+                            </thead>
+                            <tbody id="lineItemsBody"></tbody>
+                          </table>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" id="addLineItemBtn">
+                            <i class="fas fa-plus"></i> Ajouter un article
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- Totaux -->
+                      <div class="row justify-content-end mb-4">
+                        <div class="col-md-6">
+                          <div class="card bg-light">
+                            <div class="card-body">
+                              <div class="d-flex justify-content-between mb-2">
+                                <span>Sous-total:</span>
+                                <span id="subtotal">0.00 MAD</span>
+                              </div>
+                              <div class="d-flex justify-content-between mb-2">
+                                <span>TVA:</span>
+                                <span id="taxAmount">0.00 MAD</span>
+                              </div>
+                              <div class="d-flex justify-content-between fw-bold">
+                                <span>Total:</span>
+                                <span id="total">0.00 MAD</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Notes -->
+                      <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" rows="3" placeholder="Notes ou conditions spéciales à mentionner sur la facture..."></textarea>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <!-- Aperçu miniature de la facture -->
+                <div class="card mb-4">
+                  <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Aperçu</h5>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="p-3 text-center">
+                      <div class="invoice-preview-thumbnail" style="height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                        <span class="text-muted">L'aperçu sera généré lors de l'enregistrement</span>
+                      </div>
+                    </div>
+                    <div class="card-footer bg-white p-3">
+                      <button class="btn btn-sm btn-outline-secondary w-100" id="previewInvoiceBtn">
+                        <i class="fas fa-eye"></i> Aperçu détaillé
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Options de la facture -->
+                <div class="card mb-4">
+                  <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Options</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label for="currency" class="form-label">Devise</label>
+                      <select class="form-select" id="currency">
+                        <option value="MAD" selected>Dirham marocain (MAD)</option>
+                        <option value="EUR">Euro (EUR)</option>
+                        <option value="USD">Dollar américain (USD)</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="paymentTerms" class="form-label">Conditions de paiement</label>
+                      <select class="form-select" id="paymentTerms">
+                        <option value="15">Paiement à 15 jours</option>
+                        <option value="30" selected>Paiement à 30 jours</option>
+                        <option value="45">Paiement à 45 jours</option>
+                        <option value="60">Paiement à 60 jours</option>
+                        <option value="0">Paiement immédiat</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Aperçu de la facture (caché par défaut) -->
+          <div id="invoicePreview" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToEditBtn">
+                <i class="fas fa-arrow-left"></i> Retour à l'édition
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printInvoiceBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+              <button class="btn btn-morocco" id="downloadPdfBtn">
+                <i class="fas fa-download"></i> Télécharger PDF
+              </button>
+            </div>
+            
+            <div class="invoice-preview">
+              <div class="row mb-4">
+                <div class="col-6">
+                  <div class="logo-placeholder">
+                    <span class="text-muted">Logo</span>
+                  </div>
+                </div>
+                <div class="col-6 text-end">
+                  <h4 class="text-uppercase text-morocco fw-bold mb-1">Facture</h4>
+                  <div class="fw-bold" id="previewInvoiceNumber"></div>
+                  <div>Date: <span id="previewInvoiceDate"></span></div>
+                  <div>Échéance: <span id="previewDueDate"></span></div>
+                </div>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-6">
+                  <h6 class="fw-bold mb-2">De:</h6>
+                  <div>MarocSociété SARL</div>
+                  <div>123 Avenue Hassan II</div>
+                  <div>Casablanca, 20000</div>
+                  <div>Maroc</div>
+                  <div>Tel: +212 522 123 456</div>
+                  <div>Email: contact@marocsociete.ma</div>
+                  <div>ICE: 002568741000093</div>
+                </div>
+                <div class="col-6">
+                  <h6 class="fw-bold mb-2">Facturé à:</h6>
+                  <div id="previewClientName" class="fw-semibold"></div>
+                  <div id="previewClientAddress"></div>
+                  <div id="previewClientCity"></div>
+                  <div id="previewClientICE"></div>
+                </div>
+              </div>
+              
+              <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Description</th>
+                      <th scope="col" class="text-center">Quantité</th>
+                      <th scope="col" class="text-end">Prix unitaire</th>
+                      <th scope="col" class="text-center">TVA (%)</th>
+                      <th scope="col" class="text-end">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="previewLineItems"></tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4" class="text-end fw-bold">Sous-total:</td>
+                      <td class="text-end" id="previewSubtotal"></td>
+                    </tr>
+                    <tr>
+                      <td colspan="4" class="text-end fw-bold">TVA:</td>
+                      <td class="text-end" id="previewTaxAmount"></td>
+                    </tr>
+                    <tr>
+                      <td colspan="4" class="text-end fw-bold">Total:</td>
+                      <td class="text-end fw-bold text-morocco" id="previewTotal"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h6 class="fw-bold mb-2">Notes:</h6>
+                  <p id="previewNotes" class="text-muted"></p>
+                </div>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h6 class="fw-bold mb-2">Conditions de paiement:</h6>
+                  <p id="previewPaymentTerms" class="text-muted"></p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-12 text-center">
+                  <p class="text-muted small mb-0">Merci pour votre confiance.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Vue détaillée d'une facture existante (caché par défaut) -->
+          <div id="invoiceDetails" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="editInvoiceBtn">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printInvoiceDetailsBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+              <button class="btn btn-morocco" id="downloadPdfDetailsBtn">
+                <i class="fas fa-download"></i> Télécharger PDF
+              </button>
+            </div>
+            
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row align-items-center mb-4">
+                  <div class="col-md-8">
+                    <h3 id="detailsInvoiceNumber" class="mb-1"></h3>
+                    <div class="text-muted">
+                      Client: <span id="detailsClientName"></span> | Émise le: <span id="detailsInvoiceDate"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div id="detailsStatusBadge" class="d-inline-block"></div>
+                    <div class="mt-2">
+                      <span class="fw-bold">Total:</span> <span id="detailsTotal" class="fw-bold text-morocco"></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="invoice-preview">
+                      <!-- Le contenu similaire à l'aperçu de facture sera inséré ici -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Historique des paiements -->
+            <div class="card mb-4">
+              <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">Historique des paiements</h5>
+                  <button class="btn btn-sm btn-outline-morocco" id="recordPaymentBtn">
+                    <i class="fas fa-plus"></i> Enregistrer un paiement
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="noPaymentsMessage" style="display: none;">
+                  <p class="text-center text-muted my-3">Aucun paiement enregistré pour cette facture.</p>
+                </div>

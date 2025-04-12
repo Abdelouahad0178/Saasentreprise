@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Solution de gestion pour entreprises marocaines</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .dashboard-card {
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .header-logo {
+      max-height: 40px;
+    }
+    
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 20px 0;
+      margin-top: 40px;
+    }
+
+    .flag-colors {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      margin-right: 5px;
+      border-radius: 50%;
+    }
+
+    .flag-red {
+      background-color: var(--primary);
+    }
+
+    .flag-green {
+      background-color: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <span class="flag-colors flag-green"></span>
+        <span class="flag-colors flag-red"></span>
+        MaghrebERP
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              Français
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              Samira Tahiri
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Profil</a></li>
+              <li><a class="dropdown-item" href="#">Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">
+              <i class="bi bi-speedometer2"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="comptabilité.html">
+              <i class="bi bi-currency-exchange"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="facturation.html">
+              <i class="bi bi-receipt"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="bi bi-box-seam"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="ressourceshumaines.html">
+              <i class="bi bi-people"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="déclarations.html">
+              <i class="bi bi-file-earmark-text"></i> Déclarations
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapport.html">
+              <i class="bi bi-graph-up"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="bi bi-gear"></i> Paramètres
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Tableau de bord</h2>
+            <div>
+              <button class="btn btn-morocco">Exporter</button>
+              <button class="btn btn-outline-secondary ms-2">Imprimer</button>
+            </div>
+          </div>
+          
+          <!-- Stats Cards -->
+          <div class="row">
+            <div class="col-xl-3 col-md-6">
+              <div class="card dashboard-card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <div class="small text-muted">Chiffre d'affaires (mois)</div>
+                      <div class="h4">256 780 MAD</div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="text-success">+8.3%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card dashboard-card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <div class="small text-muted">Factures impayées</div>
+                      <div class="h4">87 450 MAD</div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="text-danger">12 factures</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card dashboard-card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <div class="small text-muted">TVA à déclarer</div>
+                      <div class="h4">42 130 MAD</div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="text-warning">Échéance: 5j</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card dashboard-card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <div class="small text-muted">Salaires (mois)</div>
+                      <div class="h4">124 830 MAD</div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="text-info">18 employés</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Main Content Area -->
+          <div class="row mt-4">
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-header bg-white">
+                  <div class="d-flex justify-content-between">
+                    <h5 class="card-title mb-0">Performance financière</h5>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown">
+                        Cette année
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Ce mois</a></li>
+                        <li><a class="dropdown-item" href="#">Ce trimestre</a></li>
+                        <li><a class="dropdown-item" href="#">Cette année</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-area" style="height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                    <p class="text-muted">[Graphique de performance financière]</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-4">
+              <div class="card mb-4">
+                <div class="card-header bg-white">
+                  <h5 class="card-title mb-0">Échéances à venir</h5>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold">Déclaration TVA</div>
+                        <div class="small text-muted">Trimestre Q1</div>
+                      </div>
+                      <span class="badge bg-danger rounded-pill">5j</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold">Paiement Fournisseur</div>
+                        <div class="small text-muted">Matériel informatique</div>
+                      </div>
+                      <span class="badge bg-warning rounded-pill">8j</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold">Déclaration CNSS</div>
+                        <div class="small text-muted">Mars 2025</div>
+                      </div>
+                      <span class="badge bg-info rounded-pill">12j</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold">Acompte IS</div>
+                        <div class="small text-muted">Premier acompte 2025</div>
+                      </div>
+                      <span class="badge bg-secondary rounded-pill">20j</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent Transactions -->
+          <div class="card mb-4">
+            <div class="card-header bg-white">
+              <div class="d-flex justify-content-between">
+                <h5 class="card-title mb-0">Transactions récentes</h5>
+                <a href="#" class="btn btn-sm btn-outline-primary">Voir tout</a>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Référence</th>
+                      <th>Date</th>
+                      <th>Client/Fournisseur</th>
+                      <th>Type</th>
+                      <th>Montant</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>FAC-2025-042</td>
+                      <td>10/04/2025</td>
+                      <td>Maroc Telecom</td>
+                      <td>Dépense</td>
+                      <td class="text-danger">-2 450 MAD</td>
+                      <td><span class="badge bg-success">Payée</span></td>
+                    </tr>
+                    <tr>
+                      <td>FAC-2025-041</td>
+                      <td>08/04/2025</td>
+                      <td>Sodipharm SARL</td>
+                      <td>Vente</td>
+                      <td class="text-success">+34 750 MAD</td>
+                      <td><span class="badge bg-warning">En attente</span></td>
+                    </tr>
+                    <tr>
+                      <td>FAC-2025-040</td>
+                      <td>05/04/2025</td>
+                      <td>Hotel Atlas</td>
+                      <td>Vente</td>
+                      <td class="text-success">+18 900 MAD</td>
+                      <td><span class="badge bg-success">Payée</span></td>
+                    </tr>
+                    <tr>
+                      <td>FAC-2025-039</td>
+                      <td>02/04/2025</td>
+                      <td>BMCE Bank</td>
+                      <td>Dépense</td>
+                      <td class="text-danger">-1 200 MAD</td>
+                      <td><span class="badge bg-success">Payée</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2025 MaghrebERP. Tous droits réservés.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>Support technique: support@maghreberp.ma | +212 522 123 456</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

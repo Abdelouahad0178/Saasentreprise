@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaghrebERP - Module de Comptabilité</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c11e38;
+      --secondary: #006233;
+      --accent: #ffc107;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
+    .bg-morocco {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-morocco {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-morocco:hover {
+      background-color: #a51930;
+      color: white;
+    }
+    
+    .btn-outline-morocco {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline-morocco:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar {
+      background-color: var(--dark);
+      color: white;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    
+    .table-transactions th, .table-transactions td {
+      padding: 0.75rem;
+      vertical-align: middle;
+    }
+    
+    .accounting-card {
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50rem;
+    }
+    
+    .status-validated { background-color: #d1e7dd; }
+    .status-pending { background-color: #f8d7da; }
+    
+    #accountSearch {
+      position: relative;
+    }
+    
+    #accountSearchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ced4da;
+      border-radius: 0 0 0.25rem 0.25rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .account-search-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .account-search-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .chart-placeholder {
+      height: 300px;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-morocco">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="ms-2">MaghrebERP</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-globe"></i> Français
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Français</a></li>
+              <li><a class="dropdown-item" href="#">العربية</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="badge bg-danger rounded-pill">3</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">Écriture en attente de validation</a></li>
+              <li><a class="dropdown-item" href="#">Rapport financier généré</a></li>
+              <li><a class="dropdown-item" href="#">Solde compte à vérifier</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Samira Tahiri
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profil</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Paramètres</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Déconnexion</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-none d-md-block">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i> Tableau de bord
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="facturation.html">
+              <i class="fas fa-file-invoice-dollar"></i> Facturation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="comptabilite.html">
+              <i class="fas fa-calculator"></i> Comptabilité
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="inventaire.html">
+              <i class="fas fa-boxes"></i> Inventaire
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="client.html">
+              <i class="fas fa-users"></i> Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="fournisseur.html">
+              <i class="fas fa-building"></i> Fournisseurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="ressourceshumaines.html">
+              <i class="fas fa-user-tie"></i> Ressources Humaines
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="rapport.html">
+              <i class="fas fa-chart-bar"></i> Rapports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="paramètres.html">
+              <i class="fas fa-cog"></i> Paramètres
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 ms-auto">
+        <div class="container py-4">
+          <!-- Vue d'ensemble (par défaut) -->
+          <div id="accountingOverview">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Comptabilité</h2>
+              <div>
+                <button class="btn btn-morocco" id="addTransactionBtn">
+                  <i class="fas fa-plus"></i> Nouvelle écriture
+                </button>
+                <button class="btn btn-outline-morocco ms-2" id="generateReportBtn">
+                  <i class="fas fa-file-alt"></i> Générer rapport
+                </button>
+              </div>
+            </div>
+            
+            <!-- Cartes de résumé -->
+            <div class="row">
+              <div class="col-xl-3 col-md-6">
+                <div class="card accounting-card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <div class="small text-muted">Solde total</div>
+                        <div class="h4">1 245 780 MAD</div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="text-success">+5.2%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card accounting-card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <div class="small text-muted">Recettes (mois)</div>
+                        <div class="h4">356 450 MAD</div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="text-success">+12.7%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card accounting-card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <div class="small text-muted">Dépenses (mois)</div>
+                        <div class="h4">287 130 MAD</div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="text-danger">-3.4%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card accounting-card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <div class="small text-muted">Résultat net</div>
+                        <div class="h4">69 320 MAD</div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="text-success">+8.9%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Graphique de performance -->
+            <div class="card mb-4">
+              <div class="card-header bg-white">
+                <div class="d-flex justify-content-between">
+                  <h5 class="card-title mb-0">Performance financière</h5>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown">
+                      Cette année
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">Ce mois</a></li>
+                      <li><a class="dropdown-item" href="#">Ce trimestre</a></li>
+                      <li><a class="dropdown-item" href="#">Cette année</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-placeholder">
+                  <p class="text-muted">[Graphique des revenus et dépenses]</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Liste des transactions -->
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="card-title mb-0">Transactions récentes</h5>
+                  <div>
+                    <select class="form-select form-select-sm d-inline-block" id="accountFilter" style="width: auto;">
+                      <option value="">Tous les comptes</option>
+                      <option value="caisse">Caisse</option>
+                      <option value="banque">Banque</option>
+                      <option value="clients">Clients</option>
+                      <option value="fournisseurs">Fournisseurs</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover table-transactions">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>N° Écriture</th>
+                        <th>Compte</th>
+                        <th>Description</th>
+                        <th>Débit</th>
+                        <th>Crédit</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                      <!-- Les transactions seront insérées ici par JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="d-flex justify-content-between align-items-center mt-4">
+                  <div>
+                    <span>Affichage de 1 à 10 sur 100 transactions</span>
+                  </div>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">4</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ajout/Modification d'une écriture comptable (caché par défaut) -->
+          <div id="transactionEdit" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="transactionEditTitle">Nouvelle écriture comptable</h2>
+              <div>
+                <button class="btn btn-outline-secondary me-2" id="cancelTransactionBtn">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+                <button class="btn btn-morocco" id="saveTransactionBtn">
+                  <i class="fas fa-save"></i> Enregistrer
+                </button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <form id="transactionForm">
+                  <input type="hidden" id="transactionId">
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="transactionDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="transactionDate" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="transactionNumber" class="form-label">N° Écriture</label>
+                        <input type="text" class="form-control" id="transactionNumber" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="mb-3">
+                        <label for="transactionStatus" class="form-label">Statut</label>
+                        <select class="form-select" id="transactionStatus">
+                          <option value="pending">En attente</option>
+                          <option value="validated">Validée</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Lignes comptables -->
+                  <div class="mb-4">
+                    <label class="form-label">Lignes comptables</label>
+                    <div class="table-responsive">
+                      <table class="table" id="transactionLinesTable">
+                        <thead>
+                          <tr>
+                            <th style="width: 30%;">Compte</th>
+                            <th style="width: 30%;">Description</th>
+                            <th style="width: 20%;">Débit (MAD)</th>
+                            <th style="width: 20%;">Crédit (MAD)</th>
+                            <th style="width: 5%;"></th>
+                          </tr>
+                        </thead>
+                        <tbody id="transactionLinesBody"></tbody>
+                      </table>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" id="addLineBtn">
+                        <i class="fas fa-plus"></i> Ajouter une ligne
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Recherche de compte -->
+                  <div id="accountSearch" style="display: none;">
+                    <input type="text" class="form-control" id="accountSearchInput" placeholder="Rechercher un compte...">
+                    <div id="accountSearchResults"></div>
+                  </div>
+                  
+                  <!-- Totaux -->
+                  <div class="row justify-content-end mb-4">
+                    <div class="col-md-6">
+                      <div class="card bg-light">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Total Débit:</span>
+                            <span id="totalDebit">0.00 MAD</span>
+                          </div>
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Total Crédit:</span>
+                            <span id="totalCredit">0.00 MAD</span>
+                          </div>
+                          <div class="d-flex justify-content-between fw-bold">
+                            <span>Écart:</span>
+                            <span id="balance">0.00 MAD</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Notes ou commentaires sur l'écriture..."></textarea>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Détails d'une écriture comptable (caché par défaut) -->
+          <div id="transactionDetails" style="display: none;">
+            <div class="mb-4">
+              <button class="btn btn-outline-secondary me-2" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="editTransactionBtn">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-morocco me-2" id="printTransactionBtn">
+                <i class="fas fa-print"></i> Imprimer
+              </button>
+            </div>
+            
+            <div class="card accounting-card">
+              <div class="card-body">
+                <div class="row align-items-center mb-4">
+                  <div class="col-md-8">
+                    <h3 id="detailsTransactionNumber" class="mb-1"></h3>
+                    <div class="text-muted">
+                      Date: <span id="detailsTransactionDate"></span> | Compte principal: <span id="detailsMainAccount"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div id="detailsStatusBadge" class="d-inline-block"></div>
+                  </div>
+                </div>
+                
+                <div class="table-responsive mb-4">
+                  <table class="table table-bordered">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Compte</th>
+                        <th>Description</th>
+                        <th>Débit (MAD)</th>
+                        <th>Crédit (MAD)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detailsTransactionLines"></tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="2" class="text-end fw-bold">Total:</td>
+                        <td class="text-end" id="detailsTotalDebit"></td>
+                        <td class="text-end" id="detailsTotalCredit"></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                
+                <div class="row">
+                  <div class="col-12">
+                    <h6 class="fw-bold mb-2">Notes</h6>
+                    <p id="detailsNotes" class="text-muted"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>© 2025 MaghrebERP. Tous droits réservés.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>Support technique: support@maghreberp.ma | +212 522 123 456</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
